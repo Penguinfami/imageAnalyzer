@@ -2,6 +2,7 @@ const express = require('express');
 const {analyzeImage} =require('./ai.js');
 var bodyParser = require('body-parser')
 const fs = require('fs');
+const path = require('path');
 
 const multer = require('multer');
 
@@ -21,12 +22,12 @@ app.use(bodyParser.json());
 
 const upload = multer({ dest: 'uploads/' });
 
+app.get('/', (req, res) => {
+    res.send('Hello World!');
+});
+
 app.post('/', upload.single('image'), async (req, res) => {
-    console.log('blob', req.file, typeof(req.file));
-
     const imageUrl = req.file.path;
-    console.log('Image uploaded to:', imageUrl);
-
     const result = await analyzeImage(imageUrl);
 
     fs.unlink(imageUrl, (err) => {
@@ -37,7 +38,17 @@ app.post('/', upload.single('image'), async (req, res) => {
         }
       });
     res.status(200).json(result);
-    
+});
+
+app.get('/:imageId', (req, res) => {
+    const imageId = req.params.imageId;
+    // const file = `./uploads/${imageId}`;
+    res.status(200).sendFile('uploads/' + imageId, { root: path.resolve() });
+});
+
+app.post('/image', upload.single('image'), (req, res) => {
+    console.log('blob', req.file, typeof(req.file));
+    res.status(200).json({id: req.file.path});
 });
 
 app.listen(PORT, (error) =>{
