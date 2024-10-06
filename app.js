@@ -7,7 +7,7 @@ const path = require('path');
 const multer = require('multer');
 
 const app = express();
-const PORT = 3000;
+const PORT = 5000;
 
 const cors=require("cors");
 const corsOptions ={
@@ -40,15 +40,18 @@ app.post('/', upload.single('image'), async (req, res) => {
     res.status(200).json(result);
 });
 
-app.get('/:imageId', (req, res) => {
+app.get('/image/:imageId', (req, res) => {
     const imageId = req.params.imageId;
     // const file = `./uploads/${imageId}`;
+    res.setHeader("Content-Type", "image/png");
+    res.set('Content-Disposition', `attachment; filename="pixie.png"`);
+
     res.status(200).sendFile('uploads/' + imageId, { root: path.resolve() });
 });
 
 app.post('/image', upload.single('image'), (req, res) => {
     console.log('blob', req.file, typeof(req.file));
-    res.status(200).json({id: req.file.path});
+    res.status(200).json({id: req.file.path.split("\\").pop()});
 });
 
 app.listen(PORT, (error) =>{
