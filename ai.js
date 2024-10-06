@@ -1,5 +1,6 @@
 const createClient = require('@azure-rest/ai-vision-image-analysis').default;
 const { AzureKeyCredential } = require('@azure/core-auth');
+const fs = require('fs');
 
 // Load the .env file if it exists
 require("dotenv").config();
@@ -16,21 +17,22 @@ const feature = [
 
 async function analyzeImage(imageUrl) {
   console.log(`Analyzing image ${imageUrl}`);
+  const imageBuffer = fs.readFileSync(imageUrl);
 
   const result = await client.path('/imageanalysis:analyze').post({
-    body: { url: imageUrl },
+    body: imageBuffer,
     queryParameters: { features: feature},
-    contentType: 'application/json'
+    contentType: 'application/octet-stream',
   });
 
   const iaResult = result.body;
+  console.log('IA Result:', iaResult);
 
   if (iaResult.captionResult.text.length > 0) {
-    console.log(`This may be ${iaResult.captionResult.text}`);
+    return iaResult.captionResult.text
   } else {
-    console.log('No caption detected.');
+    return "No caption found";
   }
-  return iaResult.captionResult.text
 }
 
 module.exports = {analyzeImage};
