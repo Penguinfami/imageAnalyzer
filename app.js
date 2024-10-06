@@ -51,7 +51,7 @@ app.get('/image/:imageId', (req, res) => {
 
 app.post('/image', upload.single('image'), (req, res) => {
     console.log('blob', req.file, typeof(req.file));
-    res.status(200).json({id: req.file.path.split("\\").pop()});
+    res.status(200).json({id: req.file.path.split("\\").pop().split("/").pop()});
 });
 
 app.listen(PORT, (error) =>{
